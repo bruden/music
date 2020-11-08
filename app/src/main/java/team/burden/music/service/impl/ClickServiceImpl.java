@@ -3,7 +3,6 @@ package team.burden.music.service.impl;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.graphics.Path;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
 import java.util.List;
@@ -30,7 +29,6 @@ public class ClickServiceImpl extends AccessibilityService implements ClickServi
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-        Log.d("event", accessibilityEvent + "");
     }
 
     @Override

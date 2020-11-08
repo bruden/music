@@ -39,8 +39,7 @@ public class User extends Fragment {
                         floatView.show();
                     }
                 } else {
-                    floatView.clear();
-                    floatView = null;
+                    clearFloatView();
                 }
             }
         });
@@ -50,8 +49,15 @@ public class User extends Fragment {
 
     @Override
     public void onDestroyView() {
-        floatView.clear();
-        floatView = null;
+        clearFloatView();
         super.onDestroyView();
     }
+
+    private void clearFloatView() {
+        if (floatView != null) {
+            floatView.clear();
+            floatView = null;
+        }
+    }
+
 }

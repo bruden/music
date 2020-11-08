@@ -14,11 +14,10 @@ public class ToneView extends XFloatView {
 
     private TextView textView;
 
-    private String text;
 
     public ToneView(Context context, String text) {
         super(context);
-        this.text = text;
+        textView.setText(text);
     }
 
     @Override
@@ -34,7 +33,6 @@ public class ToneView extends XFloatView {
     @Override
     protected void initFloatView() {
         textView = findViewById(R.id.tone_text);
-        textView.setText(text);
     }
 
     @Override

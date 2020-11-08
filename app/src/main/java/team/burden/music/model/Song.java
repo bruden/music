@@ -1333,6 +1333,8 @@ public class Song {
         t.add(9);
         t.add(12);
         tones.add(new Tone(t, 100));
+
+        duration = 66300;
     }
 
 }

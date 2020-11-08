@@ -11,4 +11,10 @@ public interface SongPlayService {
 
     void reset();
 
+    boolean isRunning();
+
+    int getProgress();
+
+    String getTimeFormat();
+
 }
