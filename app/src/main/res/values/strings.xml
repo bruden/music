@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Music</string>
+    <string name="bar_home">Home</string>
+    <string name="bar_user">Me</string>
+</resources>

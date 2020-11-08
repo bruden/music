@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "team.burden.music.protos";
+
+message Position {
+    int32 x = 1;
+    int32 y = 2;
+}
+
+message UserPosition {
+    repeated Position positions = 1;
+}
+
