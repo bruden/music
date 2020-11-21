@@ -4,12 +4,10 @@ import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import team.burden.music.callback.Handler;
 import team.burden.music.config.Const;
-import team.burden.music.model.Song;
-import team.burden.music.model.Tone;
+import team.burden.music.protos.Music;
 import team.burden.music.protos.PositionOuterClass;
 import team.burden.music.service.ClickService;
 import team.burden.music.service.SongPlayService;
@@ -24,7 +22,8 @@ public class SongPlayServiceImpl implements SongPlayService {
 
     private final static SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("mm:ss");
 
-    private Song song;
+    private Music.Song song;
+    private Music.Tones tones;
     private ClickService clickService;
     private PositionOuterClass.UserPosition userPosition;
     private Handler playHandler;
@@ -32,7 +31,7 @@ public class SongPlayServiceImpl implements SongPlayService {
     private boolean isRunning;
     private int tongIndex, time;
 
-    public SongPlayServiceImpl(Song song, ClickService clickService, PositionOuterClass.UserPosition userPosition, Handler playHandler) {
+    public SongPlayServiceImpl(Music.Song song, ClickService clickService, PositionOuterClass.UserPosition userPosition, Handler playHandler) {
         this.song = song;
         this.clickService = clickService;
         this.userPosition = userPosition;
@@ -40,6 +39,12 @@ public class SongPlayServiceImpl implements SongPlayService {
         this.isRunning = false;
         this.tongIndex = 0;
         this.time = 0;
+
+        try {
+            this.tones = Music.Tones.parseFrom(this.song.getTones());
+        } catch (Exception e) {
+            Log.d(LOG_TAG, String.format("Tones parse error: %s", e));
+        }
     }
 
     @Override
@@ -81,13 +86,12 @@ public class SongPlayServiceImpl implements SongPlayService {
 
         @Override
         public void run() {
-            List<Tone> tones = song.getTones();
-            for (int i = tongIndex, tonesLen = tones.size(); i < tonesLen; i++) {
+            for (int i = tongIndex, tonesLen = tones.getTonesCount(); i < tonesLen; i++) {
                 tongIndex = i;
                 if (!isRunning) {
                     break;
                 }
-                Tone tone = tones.get(i);
+                Music.Tone tone = tones.getTones(i);
                 clickService.click(ToneUtil.toPosition(tone, userPosition));
                 int duration = tone.getDuration();
                 while (duration > 0) {

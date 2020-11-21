@@ -7,6 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by burden on 2020/11/8.
@@ -78,5 +80,16 @@ public class FileUtil {
         return null;
     }
 
+    public static List<String> readAllFileNames(Context context, String dir) {
+        List<String> result = new ArrayList<>();
+        File file = context.getExternalFilesDir(dir);
+        File[] files = file.listFiles();
+        for (File f : files) {
+            if (f.isFile()) {
+                result.add(f.getName());
+            }
+        }
+        return result;
+    }
 
 }

@@ -12,5 +12,9 @@ public interface Const {
 
     String USER_PATH = "user";
     String USER_POSITION_FILE_NAME = "user.position";
+    String SONG_PATH = "songs";
+
+    String SERVER_IP = "47.100.58.203";
+    int SERVER_PORT = 8080;
 
 }

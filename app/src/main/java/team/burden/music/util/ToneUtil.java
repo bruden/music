@@ -3,7 +3,7 @@ package team.burden.music.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import team.burden.music.model.Tone;
+import team.burden.music.protos.Music;
 import team.burden.music.protos.PositionOuterClass;
 
 /**
@@ -15,10 +15,10 @@ public class ToneUtil {
             "A4", "B4", "C5", "D5", "E5",
             "F5", "G5", "A5", "B5", "C6"};
 
-    public static List<PositionOuterClass.Position> toPosition(Tone tone, PositionOuterClass.UserPosition userPosition) {
+    public static List<PositionOuterClass.Position> toPosition(Music.Tone tone, PositionOuterClass.UserPosition userPosition) {
         List<PositionOuterClass.Position> positions = new ArrayList<>();
-        for (int i : tone.getTone()) {
-            positions.add(userPosition.getPositions(i));
+        for (int i = 0, len = tone.getToneCount(); i < len; i++) {
+            positions.add(userPosition.getPositions(tone.getTone(i)));
         }
         return positions;
     }

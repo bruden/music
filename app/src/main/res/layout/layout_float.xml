@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/float_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/float_background"
@@ -14,11 +15,20 @@
         android:layout_marginBottom="5dp"
         android:gravity="center">
 
+        <TextView
+            android:id="@+id/float_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorAccent" />
+
         <com.xuexiang.xui.widget.progress.materialprogressbar.MaterialProgressBar
             android:id="@+id/float_seek_bar"
             style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/float_title"
+
             android:progress="0"
             app:mpb_progressStyle="horizontal" />
 
@@ -58,6 +68,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:src="@drawable/setting"
+            android:tint="@color/colorAccent" />
+
+        <ImageView
+            android:id="@+id/float_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/list"
             android:tint="@color/colorAccent" />
     </LinearLayout>
 
