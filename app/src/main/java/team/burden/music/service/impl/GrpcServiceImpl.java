@@ -1,6 +1,6 @@
 package team.burden.music.service.impl;
 
-import android.util.Log;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,6 @@ import team.burden.music.service.GrpcService;
  */
 public class GrpcServiceImpl implements GrpcService {
 
-    private final static String LOG_TAG = "GrpcServiceImpl";
-
     private static ManagedChannel managedChannel;
     private static GrpcServiceGrpc.GrpcServiceBlockingStub grpcServiceBlockingStub;
 
@@ -29,33 +27,30 @@ public class GrpcServiceImpl implements GrpcService {
     }
 
     @Override
-    public List<Music.Song> getSongs() {
+    public Pair<List<Music.Song>, Integer> getSongs(String text, int offset, int size) {
         List<Music.Song> result = new ArrayList<>();
-        try {
-            Grpc.QueryAllSongsRequest request = Grpc.QueryAllSongsRequest.newBuilder().buildPartial();
-            Grpc.QueryAllSongsResponse response = grpcServiceBlockingStub.queryAllSongs(request);
-            for (Grpc.SongWithoutTones swt : response.getSongsList()) {
-                result.add(Music.Song.newBuilder()
-                        .setCreator(swt.getCreator())
-                        .setTitle(swt.getTitle())
-                        .build());
-            }
-            return result;
-        } catch (Exception e) {
-            Log.e(LOG_TAG, String.format("get songs error:%s", e));
+        Grpc.QuerySongsRequest request = Grpc.QuerySongsRequest.newBuilder()
+                .setText(text)
+                .setOffset(offset)
+                .setSize(size)
+                .buildPartial();
+        Grpc.QuerySongsResponse response = grpcServiceBlockingStub.querySongs(request);
+        for (Grpc.SongWithoutTones swt : response.getSongsList()) {
+            result.add(Music.Song.newBuilder()
+                    .setCreator(swt.getCreator())
+                    .setTitle(swt.getTitle())
+                    .setCreateTime(swt.getCreateTime())
+                    .setDownloadCount(swt.getDownloadCount())
+                    .build());
         }
-        return result;
+        return Pair.of(result, response.getCount());
     }
+
 
     @Override
     public Music.Song getSong(String title) {
-        try {
-            Grpc.QuerySongRequest request = Grpc.QuerySongRequest.newBuilder().setTitle(title).buildPartial();
-            Grpc.QuerySongResponse response = grpcServiceBlockingStub.querySong(request);
-            return response.getSong();
-        } catch (Exception e) {
-            Log.e(LOG_TAG, String.format("get song error:%s", e));
-        }
-        return null;
+        Grpc.QuerySongRequest request = Grpc.QuerySongRequest.newBuilder().setTitle(title).buildPartial();
+        Grpc.QuerySongResponse response = grpcServiceBlockingStub.querySong(request);
+        return response.getSong();
     }
 }

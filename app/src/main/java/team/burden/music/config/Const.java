@@ -9,6 +9,7 @@ public interface Const {
     int CLICK_DURATION = 10;
     int PLAY_UPDATE_DURATION = 500;
     int TONE_VIEW_LENGTH = 50;
+    int PAGE_SIZE = 10;
 
     String USER_PATH = "user";
     String USER_POSITION_FILE_NAME = "user.position";

@@ -1,5 +1,7 @@
 package team.burden.music.service;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.List;
 
 import team.burden.music.protos.Music;
@@ -9,7 +11,7 @@ import team.burden.music.protos.Music;
  */
 public interface GrpcService {
 
-    List<Music.Song> getSongs();
+    Pair<List<Music.Song>, Integer> getSongs(String text, int offset, int size);
 
     Music.Song getSong(String title);
 

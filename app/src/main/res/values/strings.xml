@@ -2,4 +2,8 @@
     <string name="app_name">Music</string>
     <string name="bar_home">Home</string>
     <string name="bar_user">Me</string>
+    <string name="user_default_name">白狼</string>
+    <string name="footer_network_error">网络异常</string>
+    <string name="footer_loading">加载中……</string>
+    <string name="footer_end">人家是有底线的</string>
 </resources>

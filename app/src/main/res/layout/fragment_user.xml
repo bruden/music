@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
-                android:text="user"
+                android:text="@string/user_default_name"
                 android:textSize="18sp" />
         </LinearLayout>
 

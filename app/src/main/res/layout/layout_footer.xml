@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center">
+
+    <ViewStub
+        android:id="@+id/footer_loading_viewstub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout="@layout/layout_footer_loading" />
+
+    <ViewStub
+        android:id="@+id/footer_end_viewstub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout="@layout/layout_footer_end" />
+
+    <ViewStub
+        android:id="@+id/footer_network_error_viewstub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout="@layout/layout_footer_network_error" />
+
+
+</LinearLayout>

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,8 +14,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.cundong.recyclerview.EndlessRecyclerOnScrollListener;
+import com.cundong.recyclerview.HeaderAndFooterRecyclerViewAdapter;
+import com.cundong.recyclerview.RecyclerViewUtils;
 import com.xuexiang.xui.widget.actionbar.TitleBar;
 import com.xuexiang.xui.widget.searchview.MaterialSearchView;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +33,9 @@ import team.burden.music.protos.Music;
 import team.burden.music.service.GrpcService;
 import team.burden.music.service.impl.GrpcServiceImpl;
 import team.burden.music.util.FileUtil;
+import team.burden.music.util.RecyclerViewStateUtil;
 import team.burden.music.util.SongUtil;
+import team.burden.music.widget.Footer;
 
 /**
  * Created by burden on 2020/10/31.
@@ -40,8 +48,10 @@ public class Home extends Fragment {
     private MaterialSearchView searchView;
     private TitleBar titleBar;
     private RecyclerView recyclerView;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private HomeSongAdapter homeSongAdapter;
+    private HeaderAndFooterRecyclerViewAdapter headerAndFooterRecyclerViewAdapter;
 
     private GrpcService grpcService;
 
@@ -96,15 +106,38 @@ public class Home extends Fragment {
                 downSong(songs.get(pos).getTitle());
             }
         });
+        headerAndFooterRecyclerViewAdapter = new HeaderAndFooterRecyclerViewAdapter(homeSongAdapter);
         recyclerView = view.findViewById(R.id.home_recycler_view);
-        recyclerView.setAdapter(homeSongAdapter);
+        recyclerView.setAdapter(headerAndFooterRecyclerViewAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        homeSongAdapter.notifyDataSetChanged();
+        recyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
+            @Override
+            public void onLoadNextPage(View view) {
+                super.onLoadNextPage(view);
+                loadSongs(false);
+            }
+        });
+        RecyclerViewUtils.setFooterView(recyclerView, new Footer(getContext()));
+        headerAndFooterRecyclerViewAdapter.notifyDataSetChanged();
+
+        swipeRefreshLayout = view.findViewById(R.id.home_swipe);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadSongs(true);
+                try {
+                    Thread.sleep(1000);
+                    swipeRefreshLayout.setRefreshing(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         grpcService = new GrpcServiceImpl();
-        loadSongs();
+        loadSongs(false);
     }
 
     private void initSongs() {
@@ -112,21 +145,48 @@ public class Home extends Fragment {
         SongUtil.loadLocalSongs(getContext());
     }
 
-    private void loadSongs() {
+    private void loadSongs(final boolean refresh) {
+        if (refresh) {
+            songs.clear();
+        }
+        RecyclerViewStateUtil.setFooterViewState(getActivity(), recyclerView, Footer.State.Loading, null);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<Music.Song> result = grpcService.getSongs();
-                songs.clear();
-                for (Music.Song s : result) {
-                    songs.add(s);
-                }
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        homeSongAdapter.notifyDataSetChanged();
+                try {
+                    final Footer.State state;
+                    Pair<List<Music.Song>, Integer> result = grpcService.getSongs("", songs.size(), Const.PAGE_SIZE);
+                    for (Music.Song s : result.getKey()) {
+                        songs.add(s);
                     }
-                });
+                    if (songs.size() == result.getValue()) {
+                        state = Footer.State.TheEnd;
+                    } else {
+                        state = Footer.State.Normal;
+                    }
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            homeSongAdapter.notifyDataSetChanged();
+                            RecyclerViewStateUtil.setFooterViewState(getActivity(), recyclerView, state, null);
+                            if (refresh) {
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, String.format("Load songs error: %s", e));
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            homeSongAdapter.notifyDataSetChanged();
+                            RecyclerViewStateUtil.setFooterViewState(getActivity(), recyclerView, Footer.State.NetWorkError, null);
+                            if (refresh) {
+                                swipeRefreshLayout.setRefreshing(false);
+                            }
+                        }
+                    });
+                }
             }
         }).start();
     }
@@ -135,10 +195,14 @@ public class Home extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Music.Song song = grpcService.getSong(title);
-                FileUtil.writeFile(getContext(), Const.SONG_PATH, title, song.toByteArray());
-                SongUtil.addLocalSong(song);
-                Log.d(LOG_TAG, String.format("Download song completed: %s", song.getTitle()));
+                try {
+                    Music.Song song = grpcService.getSong(title);
+                    FileUtil.writeFile(getContext(), Const.SONG_PATH, title, song.toByteArray());
+                    SongUtil.addLocalSong(song);
+                    Log.d(LOG_TAG, String.format("Download song completed: %s", song.getTitle()));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, String.format("Download song %s error: %s", title, e));
+                }
             }
         }).start();
     }
