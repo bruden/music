@@ -102,7 +102,7 @@ public class SongPlayServiceImpl implements SongPlayService {
                         Log.e(LOG_TAG, String.format("Thread sleep error: %s", e));
                     }
                     time += t;
-                    duration = -t;
+                    duration -= t;
                     playHandler.handle();
                 }
             }
